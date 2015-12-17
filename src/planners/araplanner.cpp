@@ -456,7 +456,7 @@ int ARAPlanner::ImprovePath(ARASearchStateSpace_t* pSearchStateSpace, double Max
         retv = 0;
     }
     else {
-        SBPL_PRINTF("search exited with a solution for eps=%.3f\n", pSearchStateSpace->eps);
+        //SBPL_PRINTF("search exited with a solution for eps=%.3f\n", pSearchStateSpace->eps);
         retv = 1;
     }
 
@@ -974,9 +974,15 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
         }
 
         //print the solution cost and eps bound
-        SBPL_PRINTF("eps=%f expands=%d g(searchgoal)=%d time=%.3f\n", pSearchStateSpace->eps_satisfied,
+        int solcost = INFINITECOST;
+        // TODO remove if too computationally expensive
+        if(((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g < INFINITECOST) {
+            GetSearchPath(pSearchStateSpace, solcost);
+        }
+        SBPL_PRINTF("eps=%f subopt=%f expands=%d g(searchgoal)=%d solcost=%d time=%.3f\n", pSearchStateSpace->eps_satisfied,
+                    compute_suboptimality(),
                     searchexpands - prevexpands,
-                    ((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g,
+                    ((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g, solcost,
                     double(clock() - loop_time) / CLOCKS_PER_SEC);
 
         if (pSearchStateSpace->eps_satisfied == finitial_eps && pSearchStateSpace->eps == finitial_eps) {
@@ -984,12 +990,14 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
             num_of_expands_initial_solution = searchexpands - prevexpands;
         }
 
-        if (stats.empty() || pSearchStateSpace->eps_satisfied != stats.back().eps) {
+        if (true || stats.empty() || pSearchStateSpace->eps_satisfied != stats.back().eps) {
             PlannerStats tempStat;
             tempStat.eps = pSearchStateSpace->eps_satisfied;
+            tempStat.suboptimality = compute_suboptimality();
             tempStat.expands = searchexpands - prevexpands;
             tempStat.time = double(clock() - loop_time) / CLOCKS_PER_SEC;
-            tempStat.cost = ((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g;
+            tempStat.g = ((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g;
+            tempStat.cost = solcost;
             stats.push_back(tempStat);
         }
 
@@ -1030,11 +1038,14 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
     else {
         SBPL_PRINTF("solution is found\n");
         pathIds = GetSearchPath(pSearchStateSpace, solcost);
+        if(solcost < PathCost)
+            PathCost = solcost;
         ret = true;
     }
 
     SBPL_PRINTF("total expands this call = %d, planning time = %.3f secs, solution cost=%d\n",
                 searchexpands, (clock() - TimeStarted) / ((double)CLOCKS_PER_SEC), solcost);
+    SBPL_PRINTF("final eps: %f, subopt: %f\n", pSearchStateSpace->eps_satisfied, compute_suboptimality());
     final_eps_planning_time = (clock() - TimeStarted) / ((double)CLOCKS_PER_SEC);
     final_eps = pSearchStateSpace->eps_satisfied;
     //SBPL_FPRINTF(fStat, "%d %d\n", searchexpands, solcost);
@@ -1256,10 +1267,10 @@ double ARAPlanner::compute_suboptimality()
         }
     }
 
-    SBPL_DEBUG("Done looking through INCONS and OPEN lists for state with minimum f-value\n");
+    //SBPL_DEBUG("Done looking through INCONS and OPEN lists for state with minimum f-value\n");
 
     int overallMin = openListMin < inconsListMin ? openListMin : inconsListMin;
-    SBPL_DEBUG("f_min = min(f_open_min = %d, f_incons_min = %d) = %d\n", openListMin, inconsListMin, overallMin);
+    //SBPL_DEBUG("f_min = min(f_open_min = %d, f_incons_min = %d) = %d\n", openListMin, inconsListMin, overallMin);
 
     if (overallMin == std::numeric_limits<int>::max()) {
         SBPL_ERROR("Couldn't find a min f-value. Empty incons list or open list.\n");
@@ -1277,8 +1288,8 @@ double ARAPlanner::compute_suboptimality()
         lowerBound = double(goalGValue) / double(overallMin);
     }
 
-    SBPL_DEBUG("Lower Bound = %d / %d = %0.3f", goalGValue, overallMin, lowerBound);
-    SBPL_DEBUG("Eps Satisfied = %0.3f", pSearchStateSpace_->eps_satisfied);
+    //SBPL_DEBUG("Lower Bound = %d / %d = %0.3f", goalGValue, overallMin, lowerBound);
+    //SBPL_DEBUG("Eps Satisfied = %0.3f", pSearchStateSpace_->eps_satisfied);
 
     return std::max(1.0, std::min(pSearchStateSpace_->eps_satisfied, lowerBound));
 }

@@ -1177,9 +1177,11 @@ bool ADPlanner::Search(ADSearchStateSpace_t* pSearchStateSpace, vector<int>& pat
         if (stats.empty() || pSearchStateSpace->eps_satisfied != stats.back().eps) {
             PlannerStats tempStat;
             tempStat.eps = pSearchStateSpace->eps_satisfied;
+            tempStat.suboptimality = tempStat.eps;  // FIXME better possible?
             tempStat.expands = searchexpands - prevexpands;
             tempStat.time = double(clock() - loop_time) / CLOCKS_PER_SEC;
-            tempStat.cost = ((ADState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g;
+            tempStat.g = ((ADState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g;
+            tempStat.cost = tempStat.g;     // FIXME
             stats.push_back(tempStat);
         }
 

@@ -925,8 +925,8 @@ void get_2d_footprint_cells(vector<sbpl_2Dpt_t> polygon, set<sbpl_2Dcell_t>* cel
 
 void writePlannerStats(vector<PlannerStats> s, FILE* fout)
 {
-    fprintf(fout, "%%eps time expands cost\n");
+    fprintf(fout, "%%eps suboptimality time expands g cost\n");
     for (unsigned int i = 0; i < s.size(); i++) {
-        fprintf(fout, "%f %f %d %d\n", s[i].eps, s[i].time, s[i].expands, s[i].cost);
+        fprintf(fout, "%f %f %f %d %d %d\n", s[i].eps, s[i].suboptimality, s[i].time, s[i].expands, s[i].g, s[i].cost);
     }
 }

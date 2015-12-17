@@ -136,9 +136,20 @@ class PlannerStats
 {
 public:
     double eps;
+    double suboptimality;       // might just be eps, unless there is a better suboptimality estimate
+    int g;          // might just be cost, unless goal g is still inconsistent in anytime algos
     int cost;
     double time;
     int expands;
+
+    PlannerStats() {
+        eps = -1;
+        suboptimality = -1;
+        g = -1;
+        cost = -1;
+        time = -1;
+        expands = -1;
+    }
 };
 
 typedef enum
