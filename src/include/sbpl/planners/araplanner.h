@@ -240,6 +240,8 @@ public:
      */
     ~ARAPlanner();
 
+    virtual void set_track_expansions(bool on) { track_expansions = on; }
+
     /**
      * \brief returns the initial epsilon
      */
@@ -270,6 +272,9 @@ public:
      */
     virtual void get_search_stats(std::vector<PlannerStats>* s);
 
+    const std::vector< std::vector<int> > & get_expanded_states() const { return expanded_states; }
+    const std::vector< std::vector<int> > & get_generated_states() const { return generated_states; }
+
 protected:
     //member variables
     double finitial_eps, finitial_eps_planning_time, final_eps_planning_time, final_eps, dec_eps, final_epsilon;
@@ -277,6 +282,10 @@ protected:
     bool use_repair_time;
 
     std::vector<PlannerStats> stats;
+    bool track_expansions;
+    /// Expanded states per iteration
+    std::vector< std::vector<int> > expanded_states;
+    std::vector< std::vector<int> > generated_states;
 
     int num_of_expands_initial_solution;
 

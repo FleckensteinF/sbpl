@@ -41,7 +41,7 @@
 
 using namespace std;
 
-ARAPlanner::ARAPlanner(DiscreteSpaceInformation* environment, bool bSearchForward)
+ARAPlanner::ARAPlanner(DiscreteSpaceInformation* environment, bool bSearchForward) : track_expansions(false)
 {
     bforwardsearch = bSearchForward;
 
@@ -256,12 +256,20 @@ void ARAPlanner::UpdatePreds(ARAState* state, ARASearchStateSpace_t* pSearchStat
     CKey key;
     ARAState *predstate;
 
+    // searchiteration is increased before ImprovePath, thus starts at 1
+    assert(pSearchStateSpace->searchiteration > 0 && pSearchStateSpace->searchiteration < generated_states.size());
+    if(!expanded_states.empty())
+        expanded_states[pSearchStateSpace->searchiteration - 1].push_back(state->MDPstate->StateID);
+
     environment_->GetPreds(state->MDPstate->StateID, &PredIDV, &CostV);
 
     //iterate through predecessors of s
     for (int pind = 0; pind < (int)PredIDV.size(); pind++) {
         CMDPSTATE* PredMDPState = GetState(PredIDV[pind], pSearchStateSpace);
         predstate = (ARAState*)(PredMDPState->PlannerSpecificData);
+        // include this here, even if not inserted in queue as the generation by GetSuccs is the costly thing to observe
+        if(!generated_states.empty())
+            generated_states[pSearchStateSpace->searchiteration - 1].push_back(PredIDV[pind]);
         if (predstate->callnumberaccessed != pSearchStateSpace->callnumber) {
             ReInitializeSearchStateInfo(predstate, pSearchStateSpace);
         }
@@ -297,12 +305,20 @@ void ARAPlanner::UpdateSuccs(ARAState* state, ARASearchStateSpace_t* pSearchStat
     CKey key;
     ARAState *succstate;
 
+    // searchiteration is increased before ImprovePath, thus starts at 1
+    assert(pSearchStateSpace->searchiteration > 0 && pSearchStateSpace->searchiteration < generated_states.size());
+    if(!expanded_states.empty())
+        expanded_states[pSearchStateSpace->searchiteration - 1].push_back(state->MDPstate->StateID);
+
     environment_->GetSuccs(state->MDPstate->StateID, &SuccIDV, &CostV);
 
     //iterate through predecessors of s
     for (int sind = 0; sind < (int)SuccIDV.size(); sind++) {
         CMDPSTATE* SuccMDPState = GetState(SuccIDV[sind], pSearchStateSpace);
         int cost = CostV[sind];
+        // include this here, even if not inserted in queue as the generation by GetSuccs is the costly thing to observe
+        if(!generated_states.empty())
+            generated_states[pSearchStateSpace->searchiteration - 1].push_back(SuccIDV[sind]);
 
         succstate = (ARAState*)(SuccMDPState->PlannerSpecificData);
         if (succstate->callnumberaccessed != pSearchStateSpace->callnumber) {
@@ -1091,6 +1107,14 @@ int ARAPlanner::replan(double allocated_time_secs, vector<int>* solution_stateID
     *psolcost = 0;
 
     SBPL_PRINTF("planner: replan called (bFirstSol=%d, bOptSol=%d)\n", bFirstSolution, bOptimalSolution);
+
+    expanded_states.clear();
+    generated_states.clear();
+    if(track_expansions) {
+        int maxIterations = (finitial_eps - 1.0)/dec_eps + 2;   // + 1 for interval, + 1 for double inaccuracies
+        expanded_states.resize(maxIterations);
+        generated_states.resize(maxIterations);
+    }
 
     //plan
     if (!(bFound = Search(pSearchStateSpace_, pathIds, PathCost,
