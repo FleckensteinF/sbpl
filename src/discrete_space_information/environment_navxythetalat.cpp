@@ -139,15 +139,15 @@ void EnvironmentNAVXYTHETALATTICE::SetConfiguration(int width, int height, const
     EnvNAVXYTHETALATCfg.StartTheta = starttheta;
 
     if (EnvNAVXYTHETALATCfg.StartX_c < 0 || EnvNAVXYTHETALATCfg.StartX_c >= EnvNAVXYTHETALATCfg.EnvWidth_c) {
-        SBPL_ERROR("ERROR: illegal start coordinates\n");
+        SBPL_ERROR("ERROR: illegal start coordinates %d %d\n", EnvNAVXYTHETALATCfg.StartX_c, EnvNAVXYTHETALATCfg.StartY_c);
         throw new SBPL_Exception();
     }
     if (EnvNAVXYTHETALATCfg.StartY_c < 0 || EnvNAVXYTHETALATCfg.StartY_c >= EnvNAVXYTHETALATCfg.EnvHeight_c) {
-        SBPL_ERROR("ERROR: illegal start coordinates\n");
+        SBPL_ERROR("ERROR: illegal start coordinates %d %d\n", EnvNAVXYTHETALATCfg.StartX_c, EnvNAVXYTHETALATCfg.StartY_c);
         throw new SBPL_Exception();
     }
     if (EnvNAVXYTHETALATCfg.StartTheta < 0 || EnvNAVXYTHETALATCfg.StartTheta >= EnvNAVXYTHETALATCfg.NumThetaDirs) {
-        SBPL_ERROR("ERROR: illegal start coordinates for theta\n");
+        SBPL_ERROR("ERROR: illegal start coordinates for theta %d\n", EnvNAVXYTHETALATCfg.StartTheta);
         throw new SBPL_Exception();
     }
 
@@ -2117,6 +2117,7 @@ int EnvironmentNAVXYTHETALAT::SetGoal(double x_m, double y_m, double theta_rad)
 
     if (!IsValidConfiguration(x, y, theta)) {
         SBPL_PRINTF("WARNING: goal configuration is invalid\n");
+        return -1;
     }
 
     EnvNAVXYTHETALATHashEntry_t* OutHashEntry;
@@ -2156,6 +2157,7 @@ int EnvironmentNAVXYTHETALAT::SetStart(double x_m, double y_m, double theta_rad)
 
     if (!IsValidConfiguration(x, y, theta)) {
         SBPL_PRINTF("WARNING: start configuration %d %d %d is invalid\n", x, y, theta);
+        return -1;
     }
 
     EnvNAVXYTHETALATHashEntry_t* OutHashEntry;
