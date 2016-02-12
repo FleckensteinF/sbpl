@@ -289,7 +289,7 @@ protected:
 
     int num_of_expands_initial_solution;
 
-    MDPConfig* MDPCfg_;
+    //MDPConfig* MDPCfg_;
 
     bool bforwardsearch; //if true, then search proceeds forward, otherwise backward
 

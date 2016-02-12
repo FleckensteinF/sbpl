@@ -257,9 +257,9 @@ void ARAPlanner::UpdatePreds(ARAState* state, ARASearchStateSpace_t* pSearchStat
     ARAState *predstate;
 
     // searchiteration is increased before ImprovePath, thus starts at 1
-    assert(pSearchStateSpace->searchiteration > 0 && pSearchStateSpace->searchiteration < generated_states.size());
+    assert(pSearchStateSpace->searchiteration > 0);
     if(!expanded_states.empty())
-        expanded_states[pSearchStateSpace->searchiteration - 1].push_back(state->MDPstate->StateID);
+        expanded_states.back().push_back(state->MDPstate->StateID);
 
     environment_->GetPreds(state->MDPstate->StateID, &PredIDV, &CostV);
 
@@ -269,7 +269,7 @@ void ARAPlanner::UpdatePreds(ARAState* state, ARASearchStateSpace_t* pSearchStat
         predstate = (ARAState*)(PredMDPState->PlannerSpecificData);
         // include this here, even if not inserted in queue as the generation by GetSuccs is the costly thing to observe
         if(!generated_states.empty())
-            generated_states[pSearchStateSpace->searchiteration - 1].push_back(PredIDV[pind]);
+            generated_states.back().push_back(PredIDV[pind]);
         if (predstate->callnumberaccessed != pSearchStateSpace->callnumber) {
             ReInitializeSearchStateInfo(predstate, pSearchStateSpace);
         }
@@ -306,9 +306,9 @@ void ARAPlanner::UpdateSuccs(ARAState* state, ARASearchStateSpace_t* pSearchStat
     ARAState *succstate;
 
     // searchiteration is increased before ImprovePath, thus starts at 1
-    assert(pSearchStateSpace->searchiteration > 0 && pSearchStateSpace->searchiteration < generated_states.size());
+    assert(pSearchStateSpace->searchiteration > 0);
     if(!expanded_states.empty())
-        expanded_states[pSearchStateSpace->searchiteration - 1].push_back(state->MDPstate->StateID);
+        expanded_states.back().push_back(state->MDPstate->StateID);
 
     environment_->GetSuccs(state->MDPstate->StateID, &SuccIDV, &CostV);
 
@@ -318,7 +318,7 @@ void ARAPlanner::UpdateSuccs(ARAState* state, ARASearchStateSpace_t* pSearchStat
         int cost = CostV[sind];
         // include this here, even if not inserted in queue as the generation by GetSuccs is the costly thing to observe
         if(!generated_states.empty())
-            generated_states[pSearchStateSpace->searchiteration - 1].push_back(SuccIDV[sind]);
+            generated_states.back().push_back(SuccIDV[sind]);
 
         succstate = (ARAState*)(SuccMDPState->PlannerSpecificData);
         if (succstate->callnumberaccessed != pSearchStateSpace->callnumber) {
@@ -452,7 +452,7 @@ int ARAPlanner::ImprovePath(ARASearchStateSpace_t* pSearchStateSpace, double Max
             //goalkey.key[1] = searchgoalstate->h;
         }
 
-        if (expands % 100000 == 0 && expands > 0) {
+        if (expands % 1000 == 0 && expands > 0) {
             SBPL_PRINTF("expands so far=%u\n", expands);
         }
     }
@@ -951,6 +951,9 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
         repair_time = INFINITECOST;
     }
 
+    expanded_states.clear();
+    generated_states.clear();
+
     //the main loop of ARA*
     stats.clear();
     int prevexpands = 0;
@@ -972,12 +975,17 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
 
             //it will be a new search
             pSearchStateSpace->bNewSearchIteration = true;
-        }           
+        }
 
         if (pSearchStateSpace->bNewSearchIteration) {
             pSearchStateSpace->searchiteration++;
             pSearchStateSpace->bNewSearchIteration = false;
             BuildNewOPENList(pSearchStateSpace);
+
+            if(track_expansions) {
+                expanded_states.push_back(std::vector<int>());
+                generated_states.push_back(std::vector<int>());
+            }
         }
 
         //re-compute f-values if necessary and reorder the heap
@@ -1107,14 +1115,6 @@ int ARAPlanner::replan(double allocated_time_secs, vector<int>* solution_stateID
     *psolcost = 0;
 
     SBPL_PRINTF("planner: replan called (bFirstSol=%d, bOptSol=%d)\n", bFirstSolution, bOptimalSolution);
-
-    expanded_states.clear();
-    generated_states.clear();
-    if(track_expansions) {
-        int maxIterations = (finitial_eps - 1.0)/dec_eps + 2;   // + 1 for interval, + 1 for double inaccuracies
-        expanded_states.resize(maxIterations);
-        generated_states.resize(maxIterations);
-    }
 
     //plan
     if (!(bFound = Search(pSearchStateSpace_, pathIds, PathCost,
