@@ -32,7 +32,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#define SBPL_PRINTF_BUFFER_SIZE 1024
+#define SBPL_PRINTF_BUFFER_SIZE (4096)
 
 static int SBPL_DEFAULT_DEBUG_OUTPUT_LOGGER(int, const char*);
 static int SBPL_DEFAULT_DEBUG_OUTPUT_FLUSH(FILE*);
@@ -62,7 +62,7 @@ int SBPL_PRINTALL(int level, const char* format, ...)
             printf("SBPL_PRINTALL::ERROR, could not complete call to vsnprintf()");
         }
         else {
-            if (retVal == SBPL_PRINTF_BUFFER_SIZE) {
+            if (retVal >= SBPL_PRINTF_BUFFER_SIZE - 1) {
                 printf("SBPL_PRINTALL::ERROR, SBPL_PRINTF_BUFFER_SIZE: %d not large enough", SBPL_PRINTF_BUFFER_SIZE);
             }
             if(buffer[retVal-1] == '\n') { // Remove newline
