@@ -86,7 +86,7 @@ typedef struct
 {
     int motprimID;
     unsigned char starttheta_c;
-    int additionalactioncostmult;
+    double additionalactioncostmult;
     sbpl_xy_theta_cell_t endcell;
     //intermptV start at 0,0,starttheta and end at endcell in continuous
     //domain with half-bin less to account for 0,0 start

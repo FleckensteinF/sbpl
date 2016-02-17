@@ -488,6 +488,7 @@ bool EnvironmentNAVXYTHETALATTICE::ReadinMotionPrimitive(SBPL_xytheta_mprimitive
 {
     char sTemp[1024];
     int dTemp;
+    double fTemp;
     char sExpected[1024];
     int numofIntermPoses;
 
@@ -533,8 +534,8 @@ bool EnvironmentNAVXYTHETALATTICE::ReadinMotionPrimitive(SBPL_xytheta_mprimitive
         SBPL_ERROR("ERROR: expected %s but got %s\n", sExpected, sTemp);
         return false;
     }
-    if (fscanf(fIn, "%d", &dTemp) != 1) return false;
-    pMotPrim->additionalactioncostmult = dTemp;
+    if (fscanf(fIn, "%lf", &fTemp) != 1) return false;
+    pMotPrim->additionalactioncostmult = fTemp;
 
     //read in intermediate poses
     strcpy(sExpected, "intermediateposes:");
