@@ -37,6 +37,8 @@
 #include <sbpl/utils/mdp.h>
 #include <sbpl/utils/mdpconfig.h>
 
+#include <iostream>
+
 using namespace std;
 
 #if TIME_DEBUG
@@ -812,7 +814,6 @@ void EnvironmentNAVXYTHETALATTICE::PrecomputeActionswithBaseMotionPrimitive(
                                 EnvNAVXYTHETALATCfg.ActionsV[tind][aind].intermptV,
                                 &EnvNAVXYTHETALATCfg.ActionsV[tind][aind].intersectingcellsV,
                                 EnvNAVXYTHETALATCfg.cellsize_m);
-
 #if DEBUG
             SBPL_FPRINTF(fDeb,
                          "action tind=%d aind=%d: dX=%d dY=%d endtheta=%d (%.2f degs -> %.2f degs) "
@@ -904,6 +905,7 @@ void EnvironmentNAVXYTHETALATTICE::PrecomputeActionswithCompleteMotionPrimitive(
             sbpl_xy_theta_cell_t previnterm3Dcell;
             previnterm3Dcell.x = 0;
             previnterm3Dcell.y = 0;
+            previnterm3Dcell.theta = 0; 
 
             // Compute all the intersected cells for this action (intermptV and interm3DcellsV)
             for (int pind = 0; pind < (int)motionprimitiveV->at(mind).intermptV.size(); pind++) {
@@ -916,17 +918,19 @@ void EnvironmentNAVXYTHETALATTICE::PrecomputeActionswithCompleteMotionPrimitive(
                 pose.y = intermpt.y + sourcepose.y;
                 pose.theta = intermpt.theta;
 
-                sbpl_xy_theta_cell_t intermediate2dCell;
-                intermediate2dCell.x = CONTXY2DISC(pose.x, EnvNAVXYTHETALATCfg.cellsize_m);
-                intermediate2dCell.y = CONTXY2DISC(pose.y, EnvNAVXYTHETALATCfg.cellsize_m);
+		sbpl_xy_theta_cell_t intermediate3dCell; 
+                intermediate3dCell.x = CONTXY2DISC(pose.x, EnvNAVXYTHETALATCfg.cellsize_m);
+                intermediate3dCell.y = CONTXY2DISC(pose.y, EnvNAVXYTHETALATCfg.cellsize_m);
+		intermediate3dCell.theta = ContTheta2Disc(pose.theta, EnvNAVXYTHETALATCfg.NumThetaDirs);
 
                 // add unique cells to the list
-                if (EnvNAVXYTHETALATCfg.ActionsV[tind][aind].interm3DcellsV.size() == 0 || intermediate2dCell.x
-                    != previnterm3Dcell.x || intermediate2dCell.y != previnterm3Dcell.y) {
-                    EnvNAVXYTHETALATCfg.ActionsV[tind][aind].interm3DcellsV.push_back(intermediate2dCell);
+                if (EnvNAVXYTHETALATCfg.ActionsV[tind][aind].interm3DcellsV.size() == 0 || intermediate3dCell.x
+                    != previnterm3Dcell.x || intermediate3dCell.y != previnterm3Dcell.y
+		    || intermediate3dCell.theta != previnterm3Dcell.theta) { 
+		  EnvNAVXYTHETALATCfg.ActionsV[tind][aind].interm3DcellsV.push_back(intermediate3dCell);
                 }
 
-                previnterm3Dcell = intermediate2dCell;
+                previnterm3Dcell = intermediate3dCell;
             }
 
             //compute linear and angular time
@@ -1167,7 +1171,7 @@ void EnvironmentNAVXYTHETALATTICE::InitializeEnvConfig(vector<SBPL_xytheta_mprim
     temppose.theta = 0.0;
     vector<sbpl_2Dcell_t> footprint;
     get_2d_footprint_cells(EnvNAVXYTHETALATCfg.FootprintPolygon, &footprint, temppose, EnvNAVXYTHETALATCfg.cellsize_m);
-    SBPL_PRINTF("number of cells in footprint of the robot = %d\n", (unsigned int)footprint.size());
+    //SBPL_PRINTF("number of cells in footprint of the robot = %d\n", (unsigned int)footprint.size());
 
     std::stringstream ss;
     ss << "Footprint cells at:";
@@ -1499,6 +1503,7 @@ void EnvironmentNAVXYTHETALATTICE::ComputeHeuristicValues()
 {
     //whatever necessary pre-computation of heuristic values is done here
     SBPL_PRINTF("Precomputing heuristics...\n");
+    std::cout << "Precomputing heuristics...\n";
 
     //allocated 2D grid searches
     grid2Dsearchfromstart = new SBPL2DGridSearch(EnvNAVXYTHETALATCfg.EnvWidth_c, EnvNAVXYTHETALATCfg.EnvHeight_c,

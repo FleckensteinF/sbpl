@@ -188,7 +188,6 @@ public:
     virtual int force_planning_from_scratch_and_free_memory();
 
     /**
-     * \brief you can either search forwards or backwards
      */
     virtual int set_search_mode(bool bSearchUntilFirstSolution);
 

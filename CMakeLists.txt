@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT( sbpl )
 
+add_definitions(-std=c++11)
+
 # version (e.g. for packaging)
 set(SBPL_MAJOR_VERSION 1)
 set(SBPL_MINOR_VERSION 3)

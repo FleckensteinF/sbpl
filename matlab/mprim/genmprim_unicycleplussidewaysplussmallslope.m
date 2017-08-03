@@ -26,7 +26,7 @@
 %  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 %  * POSSIBILITY OF SUCH DAMAGE.
 %  */
-function[] = genmprim_unicycleplussideways(outfilename)
+function[] = genmprim_unicycleplussidewaysplussmallslope(outfilename)
 
 %
 %generates motion primitives and saves them into file
@@ -41,26 +41,27 @@ UNICYCLE_MPRIM_16DEGS = 1;
 
 
 if UNICYCLE_MPRIM_16DEGS == 1
-    resolution = 0.15;
+    resolution = 0.05;
     numberofangles = 16; %preferably a power of 2, definitely multiple of 8
-    numberofprimsperangle = 9;
+    numberofprimsperangle = 11;
 
     %multipliers (multiplier is used as costmult*cost)
     forwardcostmult = 1;
     backwardcostmult = 5;
     forwardandturncostmult = 1.1;
     sidestepcostmult = 2;
+    smallslopecostmult = 1.1;
     turninplacecostmult = 1;
-    
+
     %note, what is shown x,y,theta *changes* (that is, dx,dy,dtheta and not absolute numbers)
-    
+
     %0 degreees
     basemprimendpts0_c = zeros(numberofprimsperangle, 4); %x,y,theta,costmult 
     %angles are positive counterclockwise
     %0 theta change
     basemprimendpts0_c(1,:) = [1 0 0 forwardcostmult];
     basemprimendpts0_c(2,:) = [8 0 0 forwardcostmult];
-    basemprimendpts0_c(3,:) = [-1 0 0 backwardcostmult];    
+    basemprimendpts0_c(3,:) = [-1 0 0 backwardcostmult];
     %1/16 theta change
     basemprimendpts0_c(4,:) = [8 1 1 forwardandturncostmult];
     basemprimendpts0_c(5,:) = [8 -1 -1 forwardandturncostmult];
@@ -70,46 +71,55 @@ if UNICYCLE_MPRIM_16DEGS == 1
     %sideways maintaining the same heading
     basemprimendpts0_c(8,:) = [0 1 0 sidestepcostmult];
     basemprimendpts0_c(9,:) = [0 -1 0 sidestepcostmult];
-        
+    %diagonal forward maintaining the same heading
+    basemprimendpts0_c(10,:) = [8 1 0 smallslopecostmult];
+    basemprimendpts0_c(11,:) = [8 -1 0 smallslopecostmult];
+
     %45 degrees
     basemprimendpts45_c = zeros(numberofprimsperangle, 4); %x,y,theta,costmult (multiplier is used as costmult*cost)
     %angles are positive counterclockwise
     %0 theta change 
     basemprimendpts45_c(1,:) = [1 1 0 forwardcostmult];
     basemprimendpts45_c(2,:) = [6 6 0 forwardcostmult];
-    basemprimendpts45_c(3,:) = [-1 -1 0 backwardcostmult];    
+    basemprimendpts45_c(3,:) = [-1 -1 0 backwardcostmult];
     %1/16 theta change
     basemprimendpts45_c(4,:) = [5 7 1 forwardandturncostmult];
-    basemprimendpts45_c(5,:) = [7 5 -1 forwardandturncostmult];    
+    basemprimendpts45_c(5,:) = [7 5 -1 forwardandturncostmult];
     %turn in place
     basemprimendpts45_c(6,:) = [0 0 1 turninplacecostmult];
     basemprimendpts45_c(7,:) = [0 0 -1 turninplacecostmult];
     %sideways maintaining the same heading
     basemprimendpts45_c(8,:) = [-1 1 0 sidestepcostmult];
     basemprimendpts45_c(9,:) = [1 -1 0 sidestepcostmult];
-    
+    %diagonal forward maintaining the same heading
+    basemprimendpts45_c(10,:) = [5 7 0 smallslopecostmult];
+    basemprimendpts45_c(11,:) = [7 5 0 smallslopecostmult];
+
     %22.5 degrees
     basemprimendpts22p5_c = zeros(numberofprimsperangle, 4); %x,y,theta,costmult (multiplier is used as costmult*cost)
     %angles are positive counterclockwise
-    %0 theta change     
+    %0 theta change
     basemprimendpts22p5_c(1,:) = [2 1 0 forwardcostmult];
-    basemprimendpts22p5_c(2,:) = [6 3 0 forwardcostmult];    
-    basemprimendpts22p5_c(3,:) = [-2 -1 0 backwardcostmult];     
+    basemprimendpts22p5_c(2,:) = [6 3 0 forwardcostmult];
+    basemprimendpts22p5_c(3,:) = [-2 -1 0 backwardcostmult];
     %1/16 theta change
     basemprimendpts22p5_c(4,:) = [5 4 1 forwardandturncostmult];
-    basemprimendpts22p5_c(5,:) = [7 2 -1 forwardandturncostmult];    
+    basemprimendpts22p5_c(5,:) = [7 2 -1 forwardandturncostmult];
     %turn in place
     basemprimendpts22p5_c(6,:) = [0 0 1 turninplacecostmult];
     basemprimendpts22p5_c(7,:) = [0 0 -1 turninplacecostmult];
     %sideways maintaining the same heading
     basemprimendpts22p5_c(8,:) = [-1 2 0 sidestepcostmult];
     basemprimendpts22p5_c(9,:) = [1 -2 0 sidestepcostmult];
-        
+    %diagonal forward maintaining the same heading
+    basemprimendpts22p5_c(10,:) = [5 4  0 smallslopecostmult];
+    basemprimendpts22p5_c(11,:) = [7 2  0 smallslopecostmult];
+
 else
     fprintf(1, 'ERROR: undefined mprims type\n');
-    return;    
+    return;
 end;
-    
+
     
 fout = fopen(outfilename, 'w');
 
