@@ -274,6 +274,8 @@ public:
     const std::vector< std::vector<int> > & get_expanded_states() const { return expanded_states; }
     const std::vector< std::vector<int> > & get_generated_states() const { return generated_states; }
 
+    virtual bool found_initial_path() const;
+    virtual void current_best_path(std::vector<int>& path, double& best_cost) const;
 protected:
     //member variables
     double finitial_eps, finitial_eps_planning_time, final_eps_planning_time, final_eps, dec_eps, final_epsilon;
@@ -285,6 +287,8 @@ protected:
     /// Expanded states per iteration
     std::vector< std::vector<int> > expanded_states;
     std::vector< std::vector<int> > generated_states;
+    std::vector<int> current_best_path_ids;
+    double current_best_cost;
 
     int num_of_expands_initial_solution;
 

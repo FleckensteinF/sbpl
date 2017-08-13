@@ -33,6 +33,7 @@
 #include <cassert>
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 #include <sbpl/discrete_space_information/environment.h>
 #include <sbpl/utils/heap.h>
@@ -993,6 +994,7 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
             Reevaluatefvals(pSearchStateSpace);
 
         //improve or compute path
+        //TODO mutex
         if (ImprovePath(pSearchStateSpace, MaxNumofSecs) == 1) {
             pSearchStateSpace->eps_satisfied = pSearchStateSpace->eps;
         }
@@ -1001,8 +1003,10 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
         int solcost = INFINITECOST;
         // TODO remove if too computationally expensive
         if(((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g < INFINITECOST) {
-            GetSearchPath(pSearchStateSpace, solcost);
+            current_best_path_ids = GetSearchPath(pSearchStateSpace, solcost);
+            current_best_cost = solcost;
         }
+        //TODO end mutex
         SBPL_PRINTF("eps=%f subopt=%f expands=%d g(searchgoal)=%d solcost=%d time=%.3f\n", pSearchStateSpace->eps_satisfied,
                     compute_suboptimality(),
                     searchexpands - prevexpands,
@@ -1325,4 +1329,19 @@ void ARAPlanner::get_search_stats(vector<PlannerStats>* s)
     for (unsigned int i = 0; i < stats.size(); i++) {
         s->push_back(stats[i]);
     }
+}
+
+bool ARAPlanner::found_initial_path() const
+{
+    if(num_of_expands_initial_solution == -1){
+        return false;
+    }
+    return true;
+}
+
+void ARAPlanner::current_best_path(std::vector<int>& path, double& best_cost) const
+{
+    //TODO mutex
+    path = current_best_path_ids;
+    best_cost = current_best_cost;
 }
