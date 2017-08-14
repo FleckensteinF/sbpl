@@ -42,7 +42,7 @@
 
 using namespace std;
 
-ARAPlanner::ARAPlanner(DiscreteSpaceInformation* environment, bool bSearchForward) : track_expansions(false)
+ARAPlanner::ARAPlanner(DiscreteSpaceInformation* environment, bool bSearchForward) : track_expansions(false), current_best_cost(-1)
 {
     bforwardsearch = bSearchForward;
 
@@ -954,6 +954,7 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
 
     expanded_states.clear();
     generated_states.clear();
+    current_best_cost = -1;
 
     //the main loop of ARA*
     stats.clear();
@@ -1333,7 +1334,7 @@ void ARAPlanner::get_search_stats(vector<PlannerStats>* s)
 
 bool ARAPlanner::found_initial_path() const
 {
-    if(num_of_expands_initial_solution == -1){
+    if(current_best_cost == -1){
         return false;
     }
     return true;
