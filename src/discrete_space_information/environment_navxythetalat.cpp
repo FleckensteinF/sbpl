@@ -2020,7 +2020,7 @@ void EnvironmentNAVXYTHETALAT::GetActionsFromStateIDPath(vector<int>* stateIDPat
     }
 }
 
-void EnvironmentNAVXYTHETALAT::ConvertStateIDPathintoXYThetaPath(vector<int>* stateIDPath,
+void EnvironmentNAVXYTHETALAT::ConvertStateIDPathintoXYThetaPath(const vector<int>* stateIDPath,
                                                                  vector<sbpl_xy_theta_pt_t>* xythetaPath)
 {
     vector<EnvNAVXYTHETALATAction_t*> actionV;
@@ -2030,7 +2030,6 @@ void EnvironmentNAVXYTHETALAT::ConvertStateIDPathintoXYThetaPath(vector<int>* st
     int sourcex_c, sourcey_c, sourcetheta_c;
 
     SBPL_PRINTF("checks=%ld\n", checks);
-
     xythetaPath->clear();
 
 #if DEBUG
@@ -2098,10 +2097,12 @@ void EnvironmentNAVXYTHETALAT::ConvertStateIDPathintoXYThetaPath(vector<int>* st
 #if DEBUG
             int nx = CONTXY2DISC(intermpt.x, EnvNAVXYTHETALATCfg.cellsize_m);
             int ny = CONTXY2DISC(intermpt.y, EnvNAVXYTHETALATCfg.cellsize_m);
-            SBPL_FPRINTF(fDeb, "%.3f %.3f %.3f (%d %d %d cost=%d) ",
-                intermpt.x, intermpt.y, intermpt.theta,
-                nx, ny,
-                ContTheta2Disc(intermpt.theta, EnvNAVXYTHETALATCfg.NumThetaDirs), EnvNAVXYTHETALATCfg.Grid2D[nx][ny]);
+            if(EnvNAVXYTHETALATCfg.Grid2D){
+                SBPL_FPRINTF(fDeb, "%.3f %.3f %.3f (%d %d %d cost=%d) ",
+                             intermpt.x, intermpt.y, intermpt.theta,
+                             nx, ny,
+                             ContTheta2Disc(intermpt.theta, EnvNAVXYTHETALATCfg.NumThetaDirs), EnvNAVXYTHETALATCfg.Grid2D[nx][ny]);
+            }
             if(ipind == 0) SBPL_FPRINTF(fDeb, "first (heur=%d)\n", GetStartHeuristic(sourceID));
             else SBPL_FPRINTF(fDeb, "\n");
 #endif

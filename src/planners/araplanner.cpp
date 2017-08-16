@@ -995,7 +995,6 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
             Reevaluatefvals(pSearchStateSpace);
 
         //improve or compute path
-        //TODO mutex
         if (ImprovePath(pSearchStateSpace, MaxNumofSecs) == 1) {
             pSearchStateSpace->eps_satisfied = pSearchStateSpace->eps;
         }
@@ -1006,8 +1005,12 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
         if(((ARAState*)pSearchStateSpace->searchgoalstate->PlannerSpecificData)->g < INFINITECOST) {
             current_best_path_ids = GetSearchPath(pSearchStateSpace, solcost);
             current_best_cost = solcost;
+            if(on_new_path_callback){
+                on_new_path_callback(current_best_path_ids, current_best_cost);
+            }else{
+                std::cerr << "The callback for what happens when a new path was found has not been set. Continuing computation.";
+            }
         }
-        //TODO end mutex
         SBPL_PRINTF("eps=%f subopt=%f expands=%d g(searchgoal)=%d solcost=%d time=%.3f\n", pSearchStateSpace->eps_satisfied,
                     compute_suboptimality(),
                     searchexpands - prevexpands,
@@ -1342,7 +1345,11 @@ bool ARAPlanner::found_initial_path() const
 
 void ARAPlanner::current_best_path(std::vector<int>& path, double& best_cost) const
 {
-    //TODO mutex
     path = current_best_path_ids;
     best_cost = current_best_cost;
+}
+
+void ARAPlanner::set_path_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function)
+{
+    on_new_path_callback = callback_function;
 }

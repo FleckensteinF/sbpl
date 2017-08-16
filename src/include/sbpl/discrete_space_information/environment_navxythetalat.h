@@ -550,7 +550,7 @@ public:
      *         number of points in the input path. The returned coordinates are in
      *         meters,meters,radians
      */
-    virtual void ConvertStateIDPathintoXYThetaPath(std::vector<int>* stateIDPath,
+    virtual void ConvertStateIDPathintoXYThetaPath(const std::vector<int>* stateIDPath,
                                                    std::vector<sbpl_xy_theta_pt_t>* xythetaPath);
 
     /**

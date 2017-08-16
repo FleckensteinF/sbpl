@@ -35,6 +35,7 @@
 #include <vector>
 #include <sbpl/planners/planner.h>
 #include <sbpl/utils/mdp.h>
+#include <boost/function.hpp>
 
 //---configuration----
 //control of EPS
@@ -276,6 +277,7 @@ public:
 
     virtual bool found_initial_path() const;
     virtual void current_best_path(std::vector<int>& path, double& best_cost) const;
+    void set_path_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function);
 protected:
     //member variables
     double finitial_eps, finitial_eps_planning_time, final_eps_planning_time, final_eps, dec_eps, final_epsilon;
@@ -289,6 +291,7 @@ protected:
     std::vector< std::vector<int> > generated_states;
     std::vector<int> current_best_path_ids;
     double current_best_cost;
+    boost::function<void(const std::vector<int> &, const double)> on_new_path_callback;
 
     int num_of_expands_initial_solution;
 
