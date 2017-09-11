@@ -49,9 +49,9 @@ if UNICYCLE_MPRIM_16DEGS == 1
     forwardcostmult = 1;
     backwardcostmult = 5;
     forwardandturncostmult = 1.1;
-    sidestepcostmult = 2;
+    sidestepcostmult = 5;
     smallslopecostmult = 1.1;
-    turninplacecostmult = 1;
+    turninplacecostmult = 3;
 
     %note, what is shown x,y,theta *changes* (that is, dx,dy,dtheta and not absolute numbers)
 
