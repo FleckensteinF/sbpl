@@ -2029,7 +2029,7 @@ void EnvironmentNAVXYTHETALAT::ConvertStateIDPathintoXYThetaPath(const vector<in
     int targetx_c, targety_c, targettheta_c;
     int sourcex_c, sourcey_c, sourcetheta_c;
 
-    SBPL_PRINTF("checks=%ld\n", checks);
+//    SBPL_PRINTF("checks=%ld\n", checks);
     xythetaPath->clear();
 
 #if DEBUG

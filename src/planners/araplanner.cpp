@@ -431,6 +431,16 @@ int ARAPlanner::ImprovePath(ARASearchStateSpace_t* pSearchStateSpace, double Max
         state->v = state->g;
         state->iterationclosed = pSearchStateSpace->searchiteration;
 
+        if(state->g < INFINITECOST) {
+            std::vector<int> current_path_ids;
+            ReconstructPath(state, current_path_ids);
+            if(on_new_expansion_callback){
+                on_new_expansion_callback(current_path_ids, state->g);
+            }else{
+                std::cerr << "The callback for what happens when a new path was found has not been set. Continuing computation.";
+            }
+        }
+
         //new expand
         expands++;
 #if DEBUG
@@ -694,6 +704,49 @@ int ARAPlanner::SetSearchStartState(int SearchStartStateID, ARASearchStateSpace_
     }
 
     return 1;
+}
+
+void ARAPlanner::ReconstructPath(ARAState* state, std::vector<int>& path)
+{
+    if(!bforwardsearch){
+        SBPL_ERROR("%s only works for forward search.\n", __PRETTY_FUNCTION__);
+        return;
+    }
+
+    CMDPSTATE* MDPstate = state->MDPstate;
+    CMDPSTATE* PredMDPstate;
+    ARAState *predstateinfo, *stateinfo;
+    path.push_back(MDPstate->StateID);
+    while (MDPstate != pSearchStateSpace_->searchstartstate) {
+        stateinfo = (ARAState*)MDPstate->PlannerSpecificData;
+
+        if (stateinfo->g == INFINITECOST) {
+            //SBPL_ERROR("ERROR in ReconstructPath: g of the state on the path is INFINITE\n");
+            //throw new SBPL_Exception();
+            return;
+        }
+
+        if (stateinfo->bestpredstate == NULL) {
+            SBPL_ERROR("ERROR in ReconstructPath: bestpred is NULL\n");
+            throw new SBPL_Exception();
+        }
+
+        //get the parent state
+        PredMDPstate = stateinfo->bestpredstate;
+        predstateinfo = (ARAState*)PredMDPstate->PlannerSpecificData;
+
+        //check the decrease of g-values along the path
+        if (predstateinfo->v >= stateinfo->g) {
+            SBPL_ERROR("ERROR in ReconstructPath: g-values are non-decreasing\n");
+            PrintSearchState(predstateinfo, fDeb);
+            throw new SBPL_Exception();
+        }
+
+        //transition back
+        MDPstate = PredMDPstate;
+        path.push_back(MDPstate->StateID);
+    }
+    std::reverse(path.begin(), path.end());
 }
 
 int ARAPlanner::ReconstructPath(ARASearchStateSpace_t* pSearchStateSpace)
@@ -1352,4 +1405,9 @@ void ARAPlanner::current_best_path(std::vector<int>& path, double& best_cost) co
 void ARAPlanner::set_path_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function)
 {
     on_new_path_callback = callback_function;
+}
+
+void ARAPlanner::set_expanded_state_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function)
+{
+    on_new_expansion_callback = callback_function;
 }

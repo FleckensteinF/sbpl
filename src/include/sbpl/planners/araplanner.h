@@ -278,6 +278,7 @@ public:
     virtual bool found_initial_path() const;
     virtual void current_best_path(std::vector<int>& path, double& best_cost) const;
     void set_path_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function);
+    void set_expanded_state_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function);
 protected:
     //member variables
     double finitial_eps, finitial_eps_planning_time, final_eps_planning_time, final_eps, dec_eps, final_epsilon;
@@ -292,6 +293,7 @@ protected:
     std::vector<int> current_best_path_ids;
     double current_best_cost;
     boost::function<void(const std::vector<int> &, const double)> on_new_path_callback;
+    boost::function<void(const std::vector<int> &, const double)> on_new_expansion_callback;
 
     int num_of_expands_initial_solution;
 
@@ -367,6 +369,7 @@ protected:
 
     //reconstruct path functions are only relevant for forward search
     virtual int ReconstructPath(ARASearchStateSpace_t* pSearchStateSpace);
+    virtual void ReconstructPath(ARAState* state, std::vector<int>& path);
 
     virtual void PrintSearchPath(ARASearchStateSpace_t* pSearchStateSpace, FILE* fOut);
 
