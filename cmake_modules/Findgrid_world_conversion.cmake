@@ -35,7 +35,7 @@ FIND_LIBRARY(GRID_WORLD_CONVERSION_LIBRARY
 )
 
 IF (NOT GRID_WORLD_CONVERSION_LIBRARY)
-  MESSAGE(FATAL_ERROR "Cannot find grid world conversion with name libgrid_world_conversion_library.so!")
+  MESSAGE(FATAL_ERROR "Cannot find grid world conversion with name libgrid_world_conversion.so!")
 ENDIF ()
 
 
