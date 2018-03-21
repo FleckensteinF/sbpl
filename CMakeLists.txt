@@ -1,7 +1,15 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.3)
 PROJECT( sbpl )
 
 add_definitions(-std=c++11)
+
+SET(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules
+)
+
+find_package(grid_world_conversion)
+find_package(Eigen REQUIRED)
 
 # version (e.g. for packaging)
 set(SBPL_MAJOR_VERSION 1)
@@ -11,7 +19,7 @@ set(SBPL_VERSION ${SBPL_MAJOR_VERSION}.${SBPL_MINOR_VERSION}.${SBPL_PATCH_VERSIO
 
 set(CMAKE_BUILD_TYPE Release)
 
-include_directories(src/include)
+include_directories(src/include ${GRID_WORLD_CONVERSION_INCLUDE_DIRECTORY} ${EIGEN_INCLUDE_DIR})
 
 add_library(sbpl SHARED
   src/discrete_space_information/environment_nav2D.cpp
@@ -32,9 +40,11 @@ add_library(sbpl SHARED
   src/utils/heap.cpp
   src/utils/mdp.cpp
   src/utils/utils.cpp
+  src/utils/grid_world_conversion.cpp
   src/utils/2Dgridsearch.cpp
   src/utils/config.cpp	
   )
+target_link_libraries(sbpl ${GRID_WORLD_CONVERSION_LIBRARY})
 
 set(SBPL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
 set(SBPL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")

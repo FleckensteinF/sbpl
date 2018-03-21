@@ -15,6 +15,7 @@
   <buildtool_depend>cmake</buildtool_depend>
 
   <build_depend>cmake</build_depend>
+  <build_depend>grid_world_conversion</build_depend>
 
   <export>
     <build_type>cmake</build_type>

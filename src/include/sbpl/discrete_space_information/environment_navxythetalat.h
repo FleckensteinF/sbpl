@@ -515,12 +515,12 @@ public:
     /**
      * \brief sets start in meters/radians
      */
-    virtual int SetStart(double x, double y, double theta);
+    virtual int SetStart(const double x, const double y, const double theta);
 
     /**
      * \brief sets goal in meters/radians
      */
-    virtual int SetGoal(double x, double y, double theta);
+    virtual int SetGoal(const double x, const double y, const double theta);
 
     /**
      * \brief sets goal tolerance. (Note goal tolerance is ignored currently)
