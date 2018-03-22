@@ -969,34 +969,33 @@ vector<int> ARAPlanner::GetSearchPath(ARASearchStateSpace_t* pSearchStateSpace, 
     return wholePathIds;
 }
 
-bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& pathIds, int & PathCost,
-                        bool bFirstSolution, bool bOptimalSolution, double MaxNumofSecs)
+void ARAPlanner::reset_for_replan(double MaxNumofSecs)
+                                  //, bool bFirstSolution, bool bOptimalSolution
 {
-    CKey key;
+    bool bFirstSolution = this->bsearchuntilfirstsolution;
+    bool bOptimalSolution = false;
+    
     TimeStarted = clock();
     searchexpands = 0;
     num_of_expands_initial_solution = -1;
-    double old_repair_time = repair_time;
-    if (!use_repair_time)
-        repair_time = MaxNumofSecs;
 
 #if DEBUG
-    SBPL_FPRINTF(fDeb, "new search call (call number=%d)\n", pSearchStateSpace->callnumber);
+    SBPL_FPRINTF(fDeb, "new search call (call number=%d)\n", pSearchStateSpace_->callnumber);
 #endif
 
-    if (pSearchStateSpace->bReevaluatefvals) {
+    if (pSearchStateSpace_->bReevaluatefvals) {
         // costs have changed or a new goal has been set
         environment_->EnsureHeuristicsUpdated(bforwardsearch);
-        Reevaluatehvals(pSearchStateSpace);
+        Reevaluatehvals(pSearchStateSpace_);
     }
 
-    if (pSearchStateSpace->bReinitializeSearchStateSpace) {
+    if (pSearchStateSpace_->bReinitializeSearchStateSpace) {
         //re-initialize state space
-        ReInitializeSearchStateSpace(pSearchStateSpace);
+        ReInitializeSearchStateSpace(pSearchStateSpace_);
     }
 
     if (bOptimalSolution) {
-        pSearchStateSpace->eps = 1;
+        pSearchStateSpace_->eps = 1;
         MaxNumofSecs = INFINITECOST;
         repair_time = INFINITECOST;
     }
@@ -1011,8 +1010,19 @@ bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& p
 
     //the main loop of ARA*
     stats.clear();
+}
+
+bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& pathIds, int & PathCost,
+                        bool bFirstSolution, bool bOptimalSolution, double MaxNumofSecs)
+{
+    CKey key;
     int prevexpands = 0;
     clock_t loop_time;
+
+    double old_repair_time = repair_time;
+    if (!use_repair_time)
+        repair_time = MaxNumofSecs;
+
     while (pSearchStateSpace->eps_satisfied > final_epsilon &&
            (clock() - TimeStarted) < MaxNumofSecs * (double)CLOCKS_PER_SEC &&
                (pSearchStateSpace->eps_satisfied == INFINITECOST ||

@@ -155,6 +155,10 @@ public:
      */
     virtual int replan(std::vector<int>* solution_stateIDs_V, ReplanParams params, int* solcost);
 
+    virtual void reset_for_replan(double MaxNumofSecs);//, 
+        //bool bFirstSolution, bool bOptimalSolution, double MaxNumofSecs);
+
+
     /**
      * \brief set the goal state
      */
