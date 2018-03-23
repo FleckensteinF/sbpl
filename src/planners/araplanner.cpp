@@ -388,6 +388,9 @@ int ARAPlanner::ImprovePath(ARASearchStateSpace_t* pSearchStateSpace, double Max
     //expand states until done
     minkey = pSearchStateSpace->heap->getminkeyheap();
     CKey oldkey = minkey;
+
+    set_prefix(&prefix_ids);
+
     while (!pSearchStateSpace->heap->emptyheap() && minkey.key[0] < INFINITECOST && goalkey > minkey &&
            (clock() - TimeStarted) < MaxNumofSecs * (double)CLOCKS_PER_SEC &&
                (pSearchStateSpace->eps_satisfied == INFINITECOST ||
@@ -1010,6 +1013,71 @@ void ARAPlanner::reset_for_replan(double MaxNumofSecs)
 
     //the main loop of ARA*
     stats.clear();
+}
+
+bool ARAPlanner::set_prefix(const std::vector<int>* prefix_stateIDs)
+{
+    std::cerr << "setting prefix." << std::endl;
+    if(prefix_stateIDs->empty()){
+        return true;
+    }
+    prefix_ids = *prefix_stateIDs;
+    for(size_t i = 0; i < prefix_stateIDs->size(); ++i){
+        CMDPSTATE* cmdpState = GetState(prefix_stateIDs->at(i), pSearchStateSpace_);
+        ARAState* araState = (ARAState*)cmdpState->PlannerSpecificData;
+        araState->iterationclosed = pSearchStateSpace_->searchiteration;        
+    }
+
+    // loop over open list, remove all that do not contain prefix
+    std::cerr << "handling open list (heap)." << std::endl;
+    if (!pSearchStateSpace_->heap) {
+        SBPL_ERROR("heap does not exist!");
+        return false;
+    }
+    for (int i = 1; i < pSearchStateSpace_->heap->currentsize; i++) {
+        AbstractSearchState* abstractState = pSearchStateSpace_->heap->heap[i].heapstate;
+        if (!abstractState) {
+            SBPL_ERROR("heap element with keys %d and %d has NULL AbstractSearchState\n", (int)pSearchStateSpace_->heap->heap[i].key[0], (int)pSearchStateSpace_->heap->heap[i].key[1]);
+            continue; // return -1.0 ?
+        }
+        if(abstractState->heapindex == 0){
+            continue;
+        }
+
+        ARAState* araState = (ARAState*)abstractState;
+        std::vector<int> path;
+        ReconstructPath(araState, path);
+        for(size_t j = 0; j < prefix_stateIDs->size(); ++j){
+            if(path[j] != prefix_stateIDs->at(j)){
+                pSearchStateSpace_->heap->deleteheap(abstractState);
+                break;
+            }
+        }
+    }
+    
+    // TODO handle incons list
+            
+    // loop over all closed, set all that are not contained in the prefix as not closed
+    std::cerr << "handling expanded states (closed list)." << std::endl;
+    assert(expanded_states.size() > 0);
+    for(size_t i = 0; i < expanded_states.size(); ++i){
+        for(size_t j = 0; j < expanded_states[i].size(); ++j){
+            bool found = false;
+            for(size_t k = 0; k < prefix_stateIDs->size(); ++k){
+                if(expanded_states[i][j] == prefix_stateIDs->at(k)){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                CMDPSTATE* cmdpState = GetState(expanded_states[i][j], pSearchStateSpace_);
+                ARAState* araState = (ARAState*)cmdpState->PlannerSpecificData;
+                araState->iterationclosed = 0;
+                araState->numofexpands = 0;
+            }
+        }
+    }
+    return true;
 }
 
 bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& pathIds, int & PathCost,

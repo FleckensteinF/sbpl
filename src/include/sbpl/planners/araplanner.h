@@ -155,9 +155,9 @@ public:
      */
     virtual int replan(std::vector<int>* solution_stateIDs_V, ReplanParams params, int* solcost);
 
-    virtual void reset_for_replan(double MaxNumofSecs);//, 
-        //bool bFirstSolution, bool bOptimalSolution, double MaxNumofSecs);
+    virtual void reset_for_replan(double MaxNumofSecs);
 
+    virtual bool set_prefix(const std::vector<int>* prefix_stateIDs);
 
     /**
      * \brief set the goal state
@@ -295,6 +295,7 @@ protected:
     std::vector< std::vector<int> > expanded_states;
     std::vector< std::vector<int> > generated_states;
     std::vector<int> current_best_path_ids;
+    std::vector<int> prefix_ids;
     double current_best_cost;
     boost::function<void(const std::vector<int> &, const double)> on_new_path_callback;
     boost::function<void(const std::vector<int> &, const double)> on_new_expansion_callback;
