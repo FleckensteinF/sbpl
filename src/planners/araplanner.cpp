@@ -1013,6 +1013,7 @@ void ARAPlanner::reset_for_replan(double MaxNumofSecs)
 
     //the main loop of ARA*
     stats.clear();
+    prefix_ids.clear();
 }
 
 bool ARAPlanner::set_prefix(const std::vector<int>* prefix_stateIDs)
@@ -1055,7 +1056,7 @@ bool ARAPlanner::set_prefix(const std::vector<int>* prefix_stateIDs)
         }
     }
     
-    // TODO handle incons list
+    // TODO handle incons list?
             
     // loop over all closed, set all that are not contained in the prefix as not closed
     std::cerr << "handling expanded states (closed list)." << std::endl;
