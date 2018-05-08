@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 PROJECT( sbpl )
 
-add_definitions(-std=c++11)
+#add_definitions(-std=c++11)
 
 SET(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
@@ -17,7 +17,7 @@ set(SBPL_MINOR_VERSION 3)
 set(SBPL_PATCH_VERSION 0)
 set(SBPL_VERSION ${SBPL_MAJOR_VERSION}.${SBPL_MINOR_VERSION}.${SBPL_PATCH_VERSION})
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 include_directories(src/include ${GRID_WORLD_CONVERSION_INCLUDE_DIRECTORY} ${EIGEN_INCLUDE_DIR})
 
