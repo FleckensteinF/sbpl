@@ -34,6 +34,7 @@
 #include <sbpl/planners/planner.h>
 #include <sbpl/utils/key.h>
 #include <sbpl/utils/utils.h>
+#include <iostream>
 
 #define SBPL_2DGRIDSEARCH_NUMOF2DDIRS 16
 
@@ -155,6 +156,12 @@ public:
         else {
             //Dijkstra's search
             //the logic is that if s wasn't expanded, then g(s) >= maxcomputed_fval => g(s) >= maxcomputed_fval - h(s)
+            // HACK
+            if(x > width_ || y > height_){
+                std::cout << "n" << x << "," << y << " " << std::flush;
+                std::cout << "w" << width_ << ",h" << height_ << " " << std::flush;
+                return 0;
+            }
             return ((searchStates2D_[x][y].iterationaccessed == iteration_ &&
                     searchStates2D_[x][y].g <= largestcomputedoptf_) ? searchStates2D_[x][y].g :
                     largestcomputedoptf_);
