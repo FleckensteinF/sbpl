@@ -158,8 +158,6 @@ public:
             //the logic is that if s wasn't expanded, then g(s) >= maxcomputed_fval => g(s) >= maxcomputed_fval - h(s)
             // HACK
             if(x > width_ || y > height_){
-                std::cout << "n" << x << "," << y << " " << std::flush;
-                std::cout << "w" << width_ << ",h" << height_ << " " << std::flush;
                 return 0;
             }
             return ((searchStates2D_[x][y].iterationaccessed == iteration_ &&
