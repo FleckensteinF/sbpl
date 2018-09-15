@@ -157,7 +157,7 @@ public:
 
     virtual void reset_for_replan(double MaxNumofSecs);
 
-    virtual bool set_prefix(const std::vector<int>* prefix_stateIDs);
+//    virtual bool set_prefix(const std::vector<int>* prefix_stateIDs);
 
     /**
      * \brief set the goal state
@@ -282,7 +282,7 @@ public:
     virtual bool found_initial_path() const;
     virtual void current_best_path(std::vector<int>& path, double& best_cost) const;
     void set_path_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function);
-    void set_expanded_state_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function);
+//    void set_expanded_state_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function);
 protected:
     //member variables
     double finitial_eps, finitial_eps_planning_time, final_eps_planning_time, final_eps, dec_eps, final_epsilon;
@@ -295,10 +295,10 @@ protected:
     std::vector< std::vector<int> > expanded_states;
     std::vector< std::vector<int> > generated_states;
     std::vector<int> current_best_path_ids;
-    std::vector<int> prefix_ids;
+//    std::vector<int> prefix_ids;
     double current_best_cost;
     boost::function<void(const std::vector<int> &, const double)> on_new_path_callback;
-    boost::function<void(const std::vector<int> &, const double)> on_new_expansion_callback;
+//    boost::function<void(const std::vector<int> &, const double)> on_new_expansion_callback;
 
     int num_of_expands_initial_solution;
 

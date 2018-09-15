@@ -34,7 +34,6 @@
 #include <sbpl/planners/planner.h>
 #include <sbpl/utils/key.h>
 #include <sbpl/utils/utils.h>
-#include <iostream>
 
 #define SBPL_2DGRIDSEARCH_NUMOF2DDIRS 16
 

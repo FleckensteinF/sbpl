@@ -258,9 +258,9 @@ void ARAPlanner::UpdatePreds(ARAState* state, ARASearchStateSpace_t* pSearchStat
     ARAState *predstate;
 
     // searchiteration is increased before ImprovePath, thus starts at 1
-    assert(pSearchStateSpace->searchiteration > 0);
+    assert(pSearchStateSpace->searchiteration > 0 && pSearchStateSpace->searchiteration < generated_states.size());
     if(!expanded_states.empty())
-        expanded_states.back().push_back(state->MDPstate->StateID);
+        expanded_states[pSearchStateSpace->searchiteration - 1].push_back(state->MDPstate->StateID);
 
     environment_->GetPreds(state->MDPstate->StateID, &PredIDV, &CostV);
 
@@ -270,7 +270,7 @@ void ARAPlanner::UpdatePreds(ARAState* state, ARASearchStateSpace_t* pSearchStat
         predstate = (ARAState*)(PredMDPState->PlannerSpecificData);
         // include this here, even if not inserted in queue as the generation by GetSuccs is the costly thing to observe
         if(!generated_states.empty())
-            generated_states.back().push_back(PredIDV[pind]);
+            generated_states[pSearchStateSpace->searchiteration - 1].push_back(PredIDV[pind]);
         if (predstate->callnumberaccessed != pSearchStateSpace->callnumber) {
             ReInitializeSearchStateInfo(predstate, pSearchStateSpace);
         }
@@ -307,9 +307,9 @@ void ARAPlanner::UpdateSuccs(ARAState* state, ARASearchStateSpace_t* pSearchStat
     ARAState *succstate;
 
     // searchiteration is increased before ImprovePath, thus starts at 1
-    assert(pSearchStateSpace->searchiteration > 0);
+    assert(pSearchStateSpace->searchiteration > 0 && pSearchStateSpace->searchiteration < generated_states.size());
     if(!expanded_states.empty())
-        expanded_states.back().push_back(state->MDPstate->StateID);
+        expanded_states[pSearchStateSpace->searchiteration - 1].push_back(state->MDPstate->StateID);
 
     environment_->GetSuccs(state->MDPstate->StateID, &SuccIDV, &CostV);
 
@@ -319,7 +319,7 @@ void ARAPlanner::UpdateSuccs(ARAState* state, ARASearchStateSpace_t* pSearchStat
         int cost = CostV[sind];
         // include this here, even if not inserted in queue as the generation by GetSuccs is the costly thing to observe
         if(!generated_states.empty())
-            generated_states.back().push_back(SuccIDV[sind]);
+            generated_states[pSearchStateSpace->searchiteration - 1].push_back(SuccIDV[sind]);
 
         succstate = (ARAState*)(SuccMDPState->PlannerSpecificData);
         if (succstate->callnumberaccessed != pSearchStateSpace->callnumber) {
@@ -389,7 +389,7 @@ int ARAPlanner::ImprovePath(ARASearchStateSpace_t* pSearchStateSpace, double Max
     minkey = pSearchStateSpace->heap->getminkeyheap();
     CKey oldkey = minkey;
 
-    set_prefix(&prefix_ids);
+//    set_prefix(&prefix_ids);
 
     while (!pSearchStateSpace->heap->emptyheap() && minkey.key[0] < INFINITECOST && goalkey > minkey &&
            (clock() - TimeStarted) < MaxNumofSecs * (double)CLOCKS_PER_SEC &&
@@ -434,16 +434,16 @@ int ARAPlanner::ImprovePath(ARASearchStateSpace_t* pSearchStateSpace, double Max
         state->v = state->g;
         state->iterationclosed = pSearchStateSpace->searchiteration;
 
-        if(state->g < INFINITECOST) {
+/*        if(state->g < INFINITECOST) {
             std::vector<int> current_path_ids;
             ReconstructPath(state, current_path_ids);
-            if(on_new_expansion_callback){
+            /*if(on_new_expansion_callback){
                 on_new_expansion_callback(current_path_ids, state->g);
             }else{
                 std::cerr << "The callback for what happens when a new path was found has not been set. Continuing computation.";
-            }
+                }*
         }
-
+*/
         //new expand
         expands++;
 #if DEBUG
@@ -1013,10 +1013,10 @@ void ARAPlanner::reset_for_replan(double MaxNumofSecs)
 
     //the main loop of ARA*
     stats.clear();
-    prefix_ids.clear();
+//    prefix_ids.clear();
 }
 
-bool ARAPlanner::set_prefix(const std::vector<int>* prefix_stateIDs)
+/*bool ARAPlanner::set_prefix(const std::vector<int>* prefix_stateIDs)
 {
     std::cerr << "setting prefix." << std::endl;
     if(prefix_stateIDs->empty()){
@@ -1079,7 +1079,7 @@ bool ARAPlanner::set_prefix(const std::vector<int>* prefix_stateIDs)
         }
     }
     return true;
-}
+}*/
 
 bool ARAPlanner::Search(ARASearchStateSpace_t* pSearchStateSpace, vector<int>& pathIds, int & PathCost,
                         bool bFirstSolution, bool bOptimalSolution, double MaxNumofSecs)
@@ -1486,7 +1486,7 @@ void ARAPlanner::set_path_callback(const boost::function<void(const std::vector<
     on_new_path_callback = callback_function;
 }
 
-void ARAPlanner::set_expanded_state_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function)
+/*void ARAPlanner::set_expanded_state_callback(const boost::function<void(const std::vector<int> &, const double)> & callback_function)
 {
     on_new_expansion_callback = callback_function;
-}
+    }*/

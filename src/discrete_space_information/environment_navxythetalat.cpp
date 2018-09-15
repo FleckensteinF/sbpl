@@ -1173,13 +1173,9 @@ void EnvironmentNAVXYTHETALATTICE::InitializeEnvConfig(vector<SBPL_xytheta_mprim
     get_2d_footprint_cells(EnvNAVXYTHETALATCfg.FootprintPolygon, &footprint, temppose, EnvNAVXYTHETALATCfg.cellsize_m);
     //SBPL_PRINTF("number of cells in footprint of the robot = %d\n", (unsigned int)footprint.size());
 
-    std::stringstream ss;
-    ss << "Footprint cells at:";
-    for (vector<sbpl_2Dcell_t>::iterator it = footprint.begin(); it != footprint.end(); ++it) {
-        ss << " (" << it->x << ", " <<  it->y << ")";
-    }
-    ss << "\n";
-    SBPL_PRINTF(ss.str().c_str());
+    //for (vector<sbpl_2Dcell_t>::iterator it = footprint.begin(); it != footprint.end(); ++it) {
+    //    SBPL_PRINTF("Footprint cell at (%d, %d)\n", it->x, it->y);
+    //}
 
 #if DEBUG
     SBPL_FPRINTF(fDeb, "footprint cells (size=%d):\n", (int)footprint.size());
@@ -1503,7 +1499,6 @@ void EnvironmentNAVXYTHETALATTICE::ComputeHeuristicValues()
 {
     //whatever necessary pre-computation of heuristic values is done here
     SBPL_PRINTF("Precomputing heuristics...\n");
-    std::cout << "Precomputing heuristics...\n";
 
     //allocated 2D grid searches
     grid2Dsearchfromstart = new SBPL2DGridSearch(EnvNAVXYTHETALATCfg.EnvWidth_c, EnvNAVXYTHETALATCfg.EnvHeight_c,
