@@ -9,7 +9,7 @@ SET(CMAKE_MODULE_PATH
 )
 
 find_package(grid_world_conversion)
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # version (e.g. for packaging)
 set(SBPL_MAJOR_VERSION 1)
