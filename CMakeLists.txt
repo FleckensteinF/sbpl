@@ -44,7 +44,7 @@ add_library(sbpl SHARED
   src/utils/2Dgridsearch.cpp
   src/utils/config.cpp	
   )
-target_link_libraries(sbpl ${GRID_WORLD_CONVERSION_LIBRARY})
+target_link_libraries(sbpl ${GRID_WORLD_CONVERSION_LIBRARY} Eigen3::Eigen)
 
 set(SBPL_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
 set(SBPL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
