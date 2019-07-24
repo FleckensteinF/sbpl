@@ -15,7 +15,9 @@
   <buildtool_depend>cmake</buildtool_depend>
 
   <build_depend>cmake</build_depend>
-
+  <build_depend>angles</build_depend>
+  <run_depend>angles</run_depend>
+  
   <export>
     <build_type>cmake</build_type>
   </export>

@@ -8,6 +8,7 @@ SET(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules
 )
 
+find_package(angles)
 find_package(grid_world_conversion)
 find_package(Eigen3 REQUIRED)
 
@@ -19,7 +20,10 @@ set(SBPL_VERSION ${SBPL_MAJOR_VERSION}.${SBPL_MINOR_VERSION}.${SBPL_PATCH_VERSIO
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
-include_directories(src/include ${GRID_WORLD_CONVERSION_INCLUDE_DIRECTORY} ${EIGEN_INCLUDE_DIR})
+include_directories(src/include
+  ${angles_INCLUDE_DIRS}
+  ${GRID_WORLD_CONVERSION_INCLUDE_DIRECTORY}
+  ${EIGEN_INCLUDE_DIR})
 
 add_library(sbpl SHARED
   src/discrete_space_information/environment_nav2D.cpp
